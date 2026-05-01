@@ -21,7 +21,7 @@ return [
 
     'allowed_origins' => [
     'http://localhost:3000',
-    'https://your-nextjs-app.vercel.app',
+    'https://im-frontend-knbt.vercel.app/',
     ],
 
     'allowed_origins_patterns' => [],
