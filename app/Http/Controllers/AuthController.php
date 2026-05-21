@@ -46,29 +46,39 @@ class AuthController
     }
 
     public function register(Request $request)
-    {
-        try {
-            $validated = $request->validate([
-                'name'     => ['required', 'string', 'max:50'],
-                'email'    => ['required', 'email', 'unique:users,email'],
-                'password' => ['required', 'string', 'min:6'],
-                'role'     => ['required', 'in:candidate,employer'],
-            ]);
+{
+    try {
+        $validated = $request->validate([
+            'name'     => ['required', 'string', 'max:50'],
+            'email'    => ['required', 'email', 'unique:users,email'],
+            'password' => ['required', 'string', 'min:6'],
+            'role'     => ['required', 'in:candidate,employer'],
+        ]);
 
-            $validated['password'] = Hash::make($validated['password']);
+        $validated['password'] = Hash::make($validated['password']);
 
-            User::create($validated);
+        $user = User::create($validated);
+        
+        // Auto-login after registration
+        $token = $user->createToken('auth_token')->plainTextToken;
 
-            return response()->json([
-                'message' => 'User Created Successfully',
-            ], 201);
-        } catch (ValidationException $e) {
-            return response()->json([
-                'message' => 'Something went wrong!',
-                'error'   => $e->getMessage(),
-            ], 422);
-        }
+        return response()->json([
+            'message' => 'User Created Successfully',
+            'token'   => $token,
+            'user'    => [
+                'id'    => $user->id,
+                'name'  => $user->name,
+                'email' => $user->email,
+                'role'  => $user->role,
+            ],
+        ], 201);
+    } catch (ValidationException $e) {
+        return response()->json([
+            'message' => 'Something went wrong!',
+            'error'   => $e->getMessage(),
+        ], 422);
     }
+}
 
     public function logout(Request $request)
     {
